@@ -118,6 +118,17 @@
             <button @click="toUpdateRectangularPyramidEffect" class="control-btn">更新四棱锥高度</button>
         </div>
       </div>
+
+      <!-- 网格控制按钮组 -->
+      <div class="button-group pyramid-controls">
+        <div class="group-title" @click="toggleControls('grid')">
+          网格控制
+          <span class="toggle-icon">{{ isGridControlsOpen ? '▼' : '▶' }}</span>
+        </div>
+        <div v-if="isGridControlsOpen" class="controls-content">
+            <button @click="toCreate30MGridEffect" class="control-btn">创建30m网格</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -132,6 +143,7 @@ import { setReplay } from '@/components/cesiumMap/ts/replayPath'
 import { diffusionConfig } from '@/components/cesiumMap/ts/diffusion'
 import { fenceConfig } from '@/components/cesiumMap/ts/fence'
 import { geometryConfig } from '@/components/cesiumMap/ts/geometry'
+import { gridConfig } from '@/components/cesiumMap/ts/grid'
 
 // 获取store实例，保持响应性
 const mapStore = useMapStore()
@@ -145,6 +157,7 @@ const isReplayControlsOpen = ref(false)
 const isDiffusionControlsOpen = ref(false)
 const isFenceControlsOpen = ref(false)
 const isPyramidControlsOpen = ref(false)
+const isGridControlsOpen = ref(false)
 
 // 切换按钮组展开/折叠状态
 const toggleControls = (controlType: string) => {
@@ -172,6 +185,9 @@ const toggleControls = (controlType: string) => {
       break
     case 'pyramid':
       isPyramidControlsOpen.value = !isPyramidControlsOpen.value
+      break
+    case 'grid':
+      isGridControlsOpen.value = !isGridControlsOpen.value
       break
   }
 }
@@ -682,6 +698,21 @@ const clearAllRectangularPyramids = () => {
   pyramidIds = [];
 }
 
+//#region 网格控制
+
+const toCreate30MGridEffect = () => {
+  createGridEffect({
+    west: 116.6,
+    south: 31.6,
+    east: 116.9,
+    north: 31.9,
+    step: 0.02,   // 网格密度（经纬度）
+    height: 1000  // 空中高度（米）
+  })
+}
+
+//#endregion
+
 onBeforeUnmount(() => {
   // 组件卸载时清除定时器和所有几何体
   if (conicalTimer) {
@@ -745,6 +776,11 @@ const {
   updateRectangularPyramidWavePose,
   updateRectangularPyramidLengthOrPosition
 } = geometryConfig()
+
+const {
+  createGridEffect,
+  clearAirGrid
+} = gridConfig()
 </script>
 
 <style scoped lang="less">
