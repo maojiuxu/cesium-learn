@@ -127,6 +127,9 @@
         </div>
         <div v-if="isGridControlsOpen" class="controls-content">
             <button @click="toCreate30MGridEffect" class="control-btn">创建30m网格</button>
+            <button @click="clear30MGridEffect" class="control-btn">清除30m网格</button>
+            <button @click="toCreate3DVoxelGrid" class="control-btn">创建3D网格</button>
+            <button @click="clear3DVoxelGrid" class="control-btn">清除3D网格</button>
         </div>
       </div>
     </div>
@@ -711,6 +714,18 @@ const toCreate30MGridEffect = () => {
   })
 }
 
+const clear30MGridEffect = () => {
+  clearAirGrid()
+}
+
+const toCreate3DVoxelGrid = () => {
+  create3DVoxelGrid()
+}
+
+const clear3DVoxelGrid = () => {
+  voxelGrid.value?.clear()
+}
+
 //#endregion
 
 onBeforeUnmount(() => {
@@ -726,6 +741,8 @@ onBeforeUnmount(() => {
     rectangularPyramidTimer = null;
   }
   clearAllRectangularPyramids();
+
+  voxelGrid?.clear()
 })
 
 const { 
@@ -779,7 +796,9 @@ const {
 
 const {
   createGridEffect,
-  clearAirGrid
+  clearAirGrid,
+  create3DVoxelGrid,
+  voxelGrid
 } = gridConfig()
 </script>
 
