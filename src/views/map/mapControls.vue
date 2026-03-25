@@ -130,6 +130,19 @@
             <button @click="clear30MGridEffect" class="control-btn">清除30m网格</button>
             <button @click="toCreate3DVoxelGrid" class="control-btn">创建3D网格</button>
             <button @click="clear3DVoxelGrid" class="control-btn">清除3D网格</button>
+            <div class="voxel-highlight-row">
+              <span class="voxel-highlight-label">体素索引 X/Y/Z（东/北/上，从0起）</span>
+              <div class="control-group voxel-highlight-inputs">
+                <input v-model.number="voxelHighlightX" type="number" min="0" class="control-input voxel-index-input" />
+                <input v-model.number="voxelHighlightY" type="number" min="0" class="control-input voxel-index-input" />
+                <input v-model.number="voxelHighlightZ" type="number" min="0" class="control-input voxel-index-input" />
+              </div>
+              <div class="control-group voxel-highlight-btns">
+                <button type="button" @click="applyVoxelHighlight" class="control-btn">高亮该体素</button>
+                <button type="button" @click="cycleVoxelHighlight" class="control-btn">下一格</button>
+                <button type="button" @click="clearVoxelHighlightUi" class="control-btn">清除高亮</button>
+              </div>
+            </div>
         </div>
       </div>
     </div>
@@ -726,6 +739,49 @@ const clear3DVoxelGrid = () => {
   voxelGrid.value?.clear()
 }
 
+const voxelHighlightX = ref(0)
+const voxelHighlightY = ref(0)
+const voxelHighlightZ = ref(0)
+
+const applyVoxelHighlight = () => {
+  const g = voxelGrid.value
+  if (!g) return
+  const x = Math.floor(Number(voxelHighlightX.value)) || 0
+  const y = Math.floor(Number(voxelHighlightY.value)) || 0
+  const z = Math.floor(Number(voxelHighlightZ.value)) || 0
+  g.setHighlightedVoxel(x, y, z)
+}
+
+const clearVoxelHighlightUi = () => {
+  voxelGrid.value?.clearVoxelHighlight()
+}
+
+const cycleVoxelHighlight = () => {
+  const g = voxelGrid.value
+  const counts = g?.getVoxelCounts()
+  if (!g || !counts) return
+  const { countX, countY, countZ } = counts
+  let x = Math.max(0, Math.floor(Number(voxelHighlightX.value)) || 0)
+  let y = Math.max(0, Math.floor(Number(voxelHighlightY.value)) || 0)
+  let z = Math.max(0, Math.floor(Number(voxelHighlightZ.value)) || 0)
+  x = Math.min(x, countX - 1)
+  y = Math.min(y, countY - 1)
+  z = Math.min(z, countZ - 1)
+  const nx = countX
+  const ny = countY
+  let linear = x + y * nx + z * nx * ny
+  const total = nx * ny * countZ
+  linear = (linear + 1) % total
+  voxelHighlightX.value = linear % nx
+  voxelHighlightY.value = Math.floor(linear / nx) % ny
+  voxelHighlightZ.value = Math.floor(linear / (nx * ny))
+  g.setHighlightedVoxel(
+    voxelHighlightX.value,
+    voxelHighlightY.value,
+    voxelHighlightZ.value
+  )
+}
+
 //#endregion
 
 onBeforeUnmount(() => {
@@ -742,7 +798,7 @@ onBeforeUnmount(() => {
   }
   clearAllRectangularPyramids();
 
-  voxelGrid?.clear()
+  voxelGrid.value?.clear()
 })
 
 const { 
@@ -1013,5 +1069,32 @@ const {
 .btn-row button {
   flex: 1;
   min-width: 100px;
+}
+
+.voxel-highlight-row {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(100, 255, 218, 0.2);
+}
+
+.voxel-highlight-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 10px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.voxel-highlight-inputs {
+  margin-bottom: 8px;
+}
+
+.voxel-highlight-btns {
+  flex-wrap: wrap;
+}
+
+.voxel-index-input {
+  width: 52px;
+  min-width: 52px;
 }
 </style>

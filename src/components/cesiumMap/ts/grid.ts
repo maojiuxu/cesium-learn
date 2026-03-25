@@ -115,6 +115,8 @@ export function gridConfig() {
             color: Cesium.Color.CYAN.withAlpha(0.02)
         })
 
+        /** 创建后默认高亮一格，避免仅线框主网格时看不出「单格高亮」效果 */
+        voxelGrid.value.setHighlightedVoxel(0, 0, 0)
     }
 
     //#endregion
